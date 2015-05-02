@@ -1,0 +1,29 @@
+{
+  "name": "ramda-look",
+  "version": "0.0.0",
+  "description": "Little helper function for debugging code written with Ramda.js.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/sebinsua/ramda-look.git"
+  },
+  "keywords": [
+    "ramda",
+    "functional",
+    "debugging",
+    "look",
+    "tap"
+  ],
+  "author": "Seb Insua <me@sebinsua.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sebinsua/ramda-look/issues"
+  },
+  "homepage": "https://github.com/sebinsua/ramda-look#readme",
+  "dependencies": {
+    "ramda": "^0.13.0"
+  }
+}
