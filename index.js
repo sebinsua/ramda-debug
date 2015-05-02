@@ -68,11 +68,11 @@ function Look () {
   this.enabled = true;
 }
 
-Look.prototype.on = function on () {
+Look.prototype.on = function on() {
   this.enabled = true;
 };
 
-Look.prototype.off = function off () {
+Look.prototype.off = function off() {
   this.enabled = false;
 };
 
