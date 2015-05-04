@@ -10,17 +10,9 @@ R = look(R);
 var getType = R.prop('type');
 var mapNames = R.map(getType);
 
-var entities = [
-  {
-    'type': 'fruit'
-  },
-  {
-    'type': 'fruit'
-  },
-  {
-    'type': 'vegetable'
-  }
-];
+var entities = ;
 
-mapNames(entities);
+mapNames([ { 'type': 'fruit' } ]);
 ```
+
+![Example](http://i.imgur.com/VCUq0Va.png)
