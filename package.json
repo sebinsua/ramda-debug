@@ -13,9 +13,11 @@
   "keywords": [
     "ramda",
     "functional",
+    "debug",
     "debugging",
     "look",
-    "tap"
+    "tap",
+    "trace"
   ],
   "author": "Seb Insua <me@sebinsua.com>",
   "license": "MIT",
