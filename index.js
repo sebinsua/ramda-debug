@@ -2,9 +2,9 @@ var R = require('ramda');
 
 var SEPARATOR = '→';
 
-function log(methodSignature, executionSignature) {
-  console.log(methodSignature);
-  console.log(executionSignature);
+function log(fn, methodSignature, executionSignature) {
+  console.log(fn.displayName + ' ∷ ' + methodSignature);
+  console.log(fn.displayName + ' ∷ ' + executionSignature);
 }
 
 function getType(value) {
@@ -40,7 +40,13 @@ function generateMethodSignature(argsList, returnValue) {
 }
 
 function generateExecutionSignature(argsList, returnValue) {
-  var serialize = R.map(JSON.stringify);
+  // TODO what if args or return values are functions?
+  var serialize = R.map(function (v) {
+    if (R.is(Function, v)) {
+      return v.displayName;
+    }
+    return JSON.stringify(v);
+  });
   var values = serialize(argsList.concat(returnValue));
 
   var executionSignature = values.join(' ' + SEPARATOR + ' ');
@@ -49,19 +55,28 @@ function generateExecutionSignature(argsList, returnValue) {
 }
 
 function look(fn) {
-  return function wrap(/* arguments */) {
+  var wrapFn = function wrap(/* arguments */) {
     var returnValue = fn.apply(fn, arguments);
+
     if (true/* || this.enabled */) {
       var argsList = R.values(arguments);
+
+      var isFunction = R.is(Function);
+      if (isFunction(returnValue)) {
+        returnValue.displayName = fn.displayName + '(' + argsList.map(JSON.stringify).join(', ') + ')';
+      }
 
       var methodSignature = generateMethodSignature(argsList, returnValue);
       var executionSignature = generateExecutionSignature(argsList, returnValue);
 
-      log(methodSignature, executionSignature);
+      log(fn, methodSignature, executionSignature);
     }
 
     return returnValue;
-  };
+  }
+  wrapFn.displayName = fn.displayName;
+
+  return wrapFn;
 }
 
 function Look () {
@@ -77,3 +92,8 @@ Look.prototype.off = function off() {
 };
 
 module.exports = look;
+
+function init() {
+  var self = new Look();
+  return look.bind(self);
+};
