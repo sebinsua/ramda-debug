@@ -2,7 +2,7 @@
 
 var R = require('ramda');
 
-var look = require('.');
+var look = require('.')();
 
 // TODO: Move this within. Make it return and not modify the
 //       object that was passed in.
@@ -23,11 +23,9 @@ var obj = {
   'name': 'Seb'
 };
 
-// look.off();
+look.off();
 // console.log(look);
 var fnComposition = look(getName);
-
-// TODO: Can I switch behaviour on and off?
 
 // TODO: Can we color the output?
 
@@ -42,6 +40,8 @@ var fnComposition = look(getName);
 //       or printed?
 
 fnComposition(obj);
+
+look.on();
 
 look(function () {
 

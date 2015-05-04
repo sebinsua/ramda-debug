@@ -76,46 +76,50 @@ function generateExecutionSignature(argsList, returnValue) {
   return executionSignature;
 }
 
-function look(fn) {
-  var wrapFn = function wrap(/* arguments */) {
-    var returnValue = fn.apply(fn, arguments);
+module.exports = function init() {
 
-    if (true/* || this.enabled */) {
-      var argsList = R.values(arguments);
+  function Look () {
+    this.enabled = true;
+  }
 
-      if (isFunction(returnValue)) {
-        // TODO: Make this expand slowly.
-        returnValue.displayName = getFnName(fn) + '(' + argsList.map(JSON.stringify).join(', ') + ')';
+  Look.prototype.on = function on() {
+    this.enabled = true;
+  };
+
+  Look.prototype.off = function off() {
+    this.enabled = false;
+  };
+
+  Look.prototype.look = function look(fn) {
+    var wrapFn = function wrap(/* arguments */) {
+      var returnValue = fn.apply(fn, arguments);
+
+      if (this.enabled) {
+        var argsList = R.values(arguments);
+
+        if (isFunction(returnValue)) {
+          // TODO: Make this expand slowly.
+          returnValue.displayName = getFnName(fn) + '(' + argsList.map(JSON.stringify).join(', ') + ')';
+        }
+
+        var methodSignature = generateMethodSignature(argsList, returnValue);
+        var executionSignature = generateExecutionSignature(argsList, returnValue);
+
+        log(fn, methodSignature, executionSignature);
       }
 
-      var methodSignature = generateMethodSignature(argsList, returnValue);
-      var executionSignature = generateExecutionSignature(argsList, returnValue);
+      return returnValue;
+    }.bind(this);
+    wrapFn.displayName = getFnName(fn);
 
-      log(fn, methodSignature, executionSignature);
-    }
+    return wrapFn;
+  };
 
-    return returnValue;
-  }
-  wrapFn.displayName = getFnName(fn);
+  var lookInstance = new Look();
+  var lookFn = lookInstance.look.bind(lookInstance);
 
-  return wrapFn;
-}
+  lookFn.on = lookInstance.on.bind(lookInstance);
+  lookFn.off = lookInstance.off.bind(lookInstance);
 
-function Look () {
-  this.enabled = true;
-}
-
-Look.prototype.on = function on() {
-  this.enabled = true;
-};
-
-Look.prototype.off = function off() {
-  this.enabled = false;
-};
-
-module.exports = look;
-
-function init() {
-  var self = new Look();
-  return look.bind(self);
+  return lookFn;
 };
