@@ -1,18 +1,17 @@
 # ramda-debug
-:ram: Debugging for Ramda.
+> :ram: Debugging for Ramda.
+
+![Example](http://i.imgur.com/lEL9Lh9.png)
 
 ```javascript
 var R = require('ramda');
-var look = require('ramda-debug');
 
-R = look(R);
+R = require('ramda-debug')(R);
 
 var getType = R.prop('type');
 var mapNames = R.map(getType);
 
-var entities = ;
-
 mapNames([ { 'type': 'fruit' } ]);
 ```
 
-![Example](http://i.imgur.com/lEL9Lh9.png)
+
