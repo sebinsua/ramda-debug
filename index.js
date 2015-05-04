@@ -112,12 +112,21 @@ Look.prototype.off = function off() {
   this.enabled = false;
 };
 
-Look.prototype.look = function look(fn) {
+/**
+ * Wraps the function that you want to be observed.
+ *
+ * Can be called with `look(fn)` or `look('functionName', fn)`.
+ */
+Look.prototype.look = function look(fnName, fn) {
   if (!this.enabled) {
     return fn;
   }
 
-  var fnName = getFnName(fn);
+  if (isFunction(fnName)) {
+    fn = fnName;
+    fnName = getFnName(fn);
+  }
+
   fns[fnName] = true;
 
   var wrapFn = function wrap(/* arguments */) {
@@ -152,8 +161,7 @@ Look.prototype.look = function look(fn) {
 function nameFunctions(obj, lookInstance) {
   return R.mapObjIndexed(function (v, k, o) {
     if (isFunction(v)) {
-      v.displayName = k;
-      v = lookInstance.look(v);
+      v = lookInstance.look(k, v);
     }
     return v;
   }, obj);

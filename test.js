@@ -16,7 +16,6 @@ var entities = [{
 }];
 mapNames(entities);
 
-// TODO: R.look() must be able to take default name as first argument.
 // TODO: Separate logging from execution through use of emit/flush.
 // TODO: Should not print out multiple executions.
 
