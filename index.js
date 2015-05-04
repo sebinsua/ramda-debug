@@ -4,9 +4,7 @@ var inspect = require('util-inspect');
 var hex = require('text-hex');
 var crayon = require('@ccheever/crayon');
 
-var fnColors = {};
 var fns = {};
-
 var anonymousFnCounter = 0;
 
 var OF_TYPE_SYMBOL = '∷';
@@ -23,6 +21,9 @@ function log(fnName, methodTypes, executionValues) {
   var strToHex = function strToHex(str) {
     return crayon(hex(str))(str);
   };
+  var grey = function grey(str) {
+    return crayon('#aaa')(str);
+  };
 
   var methodSignature = methodTypes.join(SPACE + TO_SYMBOL + SPACE);
   var methodSignatureLine = [
@@ -34,27 +35,17 @@ function log(fnName, methodTypes, executionValues) {
 
   var emptyness = new Array(fnName.length + 1).join(SPACE);
   var executionSignature = executionValues.map(function (v) {
-    return fns[v] ? strToHex(v) : crayon('#aaa')(v);
-  }).join(SPACE + crayon('#aaa')(TO_SYMBOL) + SPACE);
+    return fns[v] ? strToHex(v) : grey(v);
+  }).join(SPACE + grey(TO_SYMBOL) + SPACE);
   var executionSignatureLine = [
     emptyness,
-    crayon('#aaa')(EQUAL_SYMBOL),
+    grey(EQUAL_SYMBOL),
     executionSignature
   ].join(SPACE);
   console.log(executionSignatureLine);
 
   console.log();
 }
-
-/*
-function lookupFnColor(fnName) {
-  if (!fnColors[fnName]) {
-    fnColors[fnName] = hex(fnName);
-  }
-
-  return fnColors[fnName];
-}
-*/
 
 function getFnName(fn) {
   var fnName = fn.displayName || fn.name;
@@ -158,7 +149,6 @@ Look.prototype.look = function look(fn) {
   return wrapFn;
 };
 
-// TODO: Stop it from modifying the object that was passed in.
 function nameFunctions(obj, lookInstance) {
   return R.mapObjIndexed(function (v, k, o) {
     if (isFunction(v)) {
