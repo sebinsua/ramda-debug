@@ -1,14 +1,36 @@
 var R = require('ramda');
 
-var SEPARATOR = '→';
+var anonymousFnCounter = 0;
+
+var OF_TYPE_SYMBOL = '∷';
+var TO_SYMBOL = '→';
+var LAMBDA_SYMBOL = 'λ';
+var EQUAL_SYMBOL = '=';
+
+var isArray = R.is(Array);
+var isFunction = R.is(Function);
 
 function log(fn, methodSignature, executionSignature) {
-  console.log(fn.displayName + ' ∷ ' + methodSignature);
-  console.log(fn.displayName + ' ∷ ' + executionSignature);
+  var fnName = getFnName(fn);
+  console.log(fnName + ' ' + OF_TYPE_SYMBOL + ' ' + methodSignature);
+
+  var emptyness = new Array(fnName.length + 1).join(' ');
+  console.log(emptyness + ' ' + EQUAL_SYMBOL + ' ' + executionSignature);
+
+  console.log();
+}
+
+// TODO: Aim to call this less often.
+function getFnName(fn) {
+  var fnName = fn.displayName || fn.name;
+  if (fnName) {
+    return fnName;
+  }
+  // TODO: Currently I am counting up too often.
+  return LAMBDA_SYMBOL + anonymousFnCounter++;
 }
 
 function getType(value) {
-  var isArray = R.is(Array);
   var type;
   if (isArray(value)) {
     var first = R.head(value);
@@ -34,22 +56,22 @@ function generateMethodSignature(argsList, returnValue) {
   var returnType = getType(returnValue);
   var types = argumentTypes.concat(returnType);
 
-  var methodSignature = types.join(' ' + SEPARATOR + ' ');
+  var methodSignature = types.join(' ' + TO_SYMBOL + ' ');
 
   return methodSignature;
 }
 
 function generateExecutionSignature(argsList, returnValue) {
-  // TODO what if args or return values are functions?
+  // TODO: Clean this up.
   var serialize = R.map(function (v) {
     if (R.is(Function, v)) {
-      return v.displayName;
+      return getFnName(v);
     }
     return JSON.stringify(v);
   });
   var values = serialize(argsList.concat(returnValue));
 
-  var executionSignature = values.join(' ' + SEPARATOR + ' ');
+  var executionSignature = values.join(' ' + TO_SYMBOL + ' ');
 
   return executionSignature;
 }
@@ -61,9 +83,9 @@ function look(fn) {
     if (true/* || this.enabled */) {
       var argsList = R.values(arguments);
 
-      var isFunction = R.is(Function);
       if (isFunction(returnValue)) {
-        returnValue.displayName = fn.displayName + '(' + argsList.map(JSON.stringify).join(', ') + ')';
+        // TODO: Make this expand slowly.
+        returnValue.displayName = getFnName(fn) + '(' + argsList.map(JSON.stringify).join(', ') + ')';
       }
 
       var methodSignature = generateMethodSignature(argsList, returnValue);
@@ -74,7 +96,7 @@ function look(fn) {
 
     return returnValue;
   }
-  wrapFn.displayName = fn.displayName;
+  wrapFn.displayName = getFnName(fn);
 
   return wrapFn;
 }
