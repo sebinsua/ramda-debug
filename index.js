@@ -102,15 +102,14 @@ Look.prototype.off = function off() {
 };
 
 Look.prototype.look = function look(fn) {
+  var fnName = getFnName(fn);
+
   var wrapFn = function wrap(/* arguments */) {
     var returnValue = fn.apply(fn, arguments);
 
-    // console.log('hi');
     if (this.enabled) {
-      // console.log('never runs');
       var argsList = R.values(arguments);
-      // console.log(argsList);
-      var fnName = getFnName(fn);
+
       if (isFunction(returnValue)) {
         // TODO: Make this expand slowly using previous argsList.
         var newFnName = fnName;
@@ -129,7 +128,7 @@ Look.prototype.look = function look(fn) {
 
     return returnValue;
   }.bind(this);
-  wrapFn.displayName = getFnName(fn);
+  wrapFn.displayName = fnName;
 
   return wrapFn;
 };
