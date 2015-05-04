@@ -13,12 +13,6 @@ var mapNames = R.map(getType);
 var entities = [
   {
     'type': 'fruit'
-  },
-  {
-    'type': 'fruit'
-  },
-  {
-    'type': 'vegetable'
   }
 ];
 
