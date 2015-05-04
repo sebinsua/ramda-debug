@@ -5,8 +5,9 @@ Aims to ease observability when coding in a [point-free programming style](http:
 
 ```javascript
 var R = require('ramda');
+var look = require('ramda-debug');
 
-R = require('ramda-debug')(R);
+R = look.wrap(R);
 
 var getType = R.prop('type');
 var mapNames = R.map(getType);

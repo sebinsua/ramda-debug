@@ -158,31 +158,24 @@ Look.prototype.look = function look(fnName, fn) {
   return wrapFn;
 };
 
-function nameFunctions(obj, lookInstance) {
+function nameFunctions(library, lookFn) {
+  if (!library) {
+    throw new Error('A library must be passed into ramda-debug#wrap.')
+  }
+
   return R.mapObjIndexed(function (v, k, o) {
     if (isFunction(v)) {
-      v = lookInstance.look(k, v);
+      v = lookFn(k, v);
     }
     return v;
-  }, obj);
+  }, library);
 }
 
-module.exports = function init(library) {
-  if (!library) {
-    throw new Error('A library must be passed into ramda-debug for it to work.')
-  }
-  if (library && library.look) {
-    throw new Error('The library already has a look() bound to it.');
-  }
+var lookInstance = new Look();
 
-  var lookInstance = new Look();
+var lookFn = lookInstance.look.bind(lookInstance);
+lookFn.on = lookInstance.on.bind(lookInstance);
+lookFn.off = lookInstance.off.bind(lookInstance);
+lookFn.wrap = R.partialRight(nameFunctions, lookFn);
 
-  var lookFn = lookInstance.look.bind(lookInstance);
-  lookFn.on = lookInstance.on.bind(lookInstance);
-  lookFn.off = lookInstance.off.bind(lookInstance);
-
-  var newLibrary = nameFunctions(library, lookInstance);
-  newLibrary.look = lookFn;
-
-  return newLibrary;
-};
+module.exports = lookFn;

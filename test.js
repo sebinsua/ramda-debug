@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
 var R = require('ramda');
+var look = require('.');
 
-R = require('.')(R);
+R = look.wrap(R)
 
 var getType = R.prop('type');
 var mapNames = R.map(getType);
