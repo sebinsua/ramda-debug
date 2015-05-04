@@ -4,6 +4,9 @@ var R = require('ramda');
 
 var R = require('.')(R);
 
+R.look.off();
+R.look.on();
+
 var getName = R.prop('name');
 
 var obj = {
@@ -12,7 +15,7 @@ var obj = {
 
 var fnComposition = R.map(getName);
 
-fnComposition(obj);
+fnComposition([obj]);
 
 R.look(function () {
 
