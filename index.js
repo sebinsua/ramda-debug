@@ -127,6 +127,11 @@ Look.prototype.look = function look(fnName, fn) {
     fnName = getFnName(fn);
   }
 
+  if (fn.wrapped) {
+    fn.displayName = 'not-wrapping-again';
+    return fn;
+  }
+
   fns[fnName] = true;
 
   var wrapFn = function wrap(/* arguments */) {
@@ -136,12 +141,15 @@ Look.prototype.look = function look(fnName, fn) {
       var argsList = R.values(arguments);
 
       if (isFunction(returnValue)) {
-        // TODO: Make this expand slowly using previous argsList.
         var newFnName = fnName;
         if (argsList.length) {
-          newFnName = newFnName + '(' + serializeValues(argsList).join(', ') + ')';
+          var oldArgsList = fn.argsList || [];
+          var fnArgsList = oldArgsList.concat(argsList);
+          newFnName = R.head(newFnName.split('(')).trim();
+          newFnName = newFnName + '(' + serializeValues(fnArgsList).join(', ') + ')';
         }
         returnValue.displayName = newFnName;
+        returnValue.argsList = fnArgsList;
         returnValue = this.look(returnValue);
       }
 
@@ -154,6 +162,7 @@ Look.prototype.look = function look(fnName, fn) {
     return returnValue;
   }.bind(this);
   wrapFn.displayName = fnName;
+  wrapFn.wrapped = true;
 
   return wrapFn;
 };
@@ -174,6 +183,7 @@ function nameFunctions(library, lookFn) {
 var lookInstance = new Look();
 
 var lookFn = lookInstance.look.bind(lookInstance);
+lookFn.look = lookFn;
 lookFn.on = lookInstance.on.bind(lookInstance);
 lookFn.off = lookInstance.off.bind(lookInstance);
 lookFn.wrap = R.partialRight(nameFunctions, lookFn);
