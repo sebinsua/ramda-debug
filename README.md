@@ -2,12 +2,25 @@
 :ram: Debugging for Ramda.
 
 ```javascript
-var R    = require('ramda'),
-    look = require('ramda-debug');
+var R = require('ramda');
+var look = require('ramda-debug');
 
-var getName = look(R.prop)('name');
+R = look(R);
 
-var name = getName({
-  name: 'Andy'
-});
+var getType = R.prop('type');
+var mapNames = R.map(getType);
+
+var entities = [
+  {
+    'type': 'fruit'
+  },
+  {
+    'type': 'fruit'
+  },
+  {
+    'type': 'vegetable'
+  }
+];
+
+mapNames(entities);
 ```

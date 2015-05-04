@@ -2,31 +2,24 @@
 
 var R = require('ramda');
 
-var R = require('.')(R);
+R = require('.')(R);
 
-R.look.off();
-R.look.on();
+var getType = R.prop('type');
+var mapNames = R.map(getType);
 
-var getName = R.prop('name');
+var entities = [{
+  'type': 'fruit'
+}, {
+  'type': 'fruit'
+}, {
+  'type': 'vegetable'
+}];
+mapNames(entities);
 
-var obj = {
-  'name': 'Seb'
-};
+// TODO: Should not print out multiple executions.
+// TODO: R.look() must be able to take default name as first argument.
+// TODO: See: https://github.com/raine/treis
 
-var fnComposition = R.map(getName);
-
-fnComposition([obj]);
-
-R.look(function () {
-
-})();
-
-// TODO: How well does the disabling code work?
-
-// TODO: Can we color the output?
-
-// TODO: Look at what treis has done and do it better.
-
-// TODO: Can we handle multiple executions on one function?
-//       What happens? At what point will the data be collected
-//       or printed?
+// TODO: Make the execution signature more concise when large amounts of data are handled.
+// TODO: Separate logging from execution through use of emit/flush.
+// TODO: Make it easy to choose which functions are logged and in what order.

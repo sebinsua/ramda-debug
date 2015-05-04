@@ -1,4 +1,11 @@
 var R = require('ramda');
+var inspect = require('util-inspect');
+
+var hex = require('text-hex');
+var crayon = require('@ccheever/crayon');
+
+var fnColors = {};
+var fns = {};
 
 var anonymousFnCounter = 0;
 
@@ -12,18 +19,26 @@ var SPACE = ' ';
 var isArray = R.is(Array);
 var isFunction = R.is(Function);
 
-function log(fnName, methodSignature, executionSignature) {
+function log(fnName, methodTypes, executionValues) {
+  var strToHex = function strToHex(str) {
+    return crayon(hex(str))(str);
+  };
+
+  var methodSignature = methodTypes.join(SPACE + TO_SYMBOL + SPACE);
   var methodSignatureLine = [
-    fnName,
+    fns[fnName] ? strToHex(fnName) : fnName,
     OF_TYPE_SYMBOL,
     methodSignature
   ].join(SPACE);
   console.log(methodSignatureLine);
 
   var emptyness = new Array(fnName.length + 1).join(SPACE);
+  var executionSignature = executionValues.map(function (v) {
+    return fns[v] ? strToHex(v) : crayon('#aaa')(v);
+  }).join(SPACE + crayon('#aaa')(TO_SYMBOL) + SPACE);
   var executionSignatureLine = [
     emptyness,
-    EQUAL_SYMBOL,
+    crayon('#aaa')(EQUAL_SYMBOL),
     executionSignature
   ].join(SPACE);
   console.log(executionSignatureLine);
@@ -31,22 +46,30 @@ function log(fnName, methodSignature, executionSignature) {
   console.log();
 }
 
-// TODO: Aim to call this less often.
+/*
+function lookupFnColor(fnName) {
+  if (!fnColors[fnName]) {
+    fnColors[fnName] = hex(fnName);
+  }
+
+  return fnColors[fnName];
+}
+*/
+
 function getFnName(fn) {
   var fnName = fn.displayName || fn.name;
   if (fnName) {
     return fnName;
   }
-  // TODO: Currently I am counting up too often.
+
   return LAMBDA_SYMBOL + anonymousFnCounter++;
 }
 
 function getType(value) {
   var type;
   if (isArray(value)) {
-    var first = R.head(value);
-    var firstType = getType(first);
     var types = getTypes(value);
+    var firstType = R.head(types);
     var isAnyTypeDifferent = R.any(R.pipe(R.eq(firstType), R.not));
     if (isAnyTypeDifferent(types)) {
       type = '[Mixed]';
@@ -63,30 +86,27 @@ var getTypes = R.map(getType);
 
 function serializeValue(v) {
   if (R.is(Function, v)) {
-    return getFnName(v);
+    var fnName = getFnName(v);
+    return fnName;
   }
-  return JSON.stringify(v);
+  return inspect(v);
 }
 
 var serializeValues = R.map(serializeValue);
 
-function generateMethodSignature(argsList, returnValue) {
+function generateMethodTypes(argsList, returnValue) {
   var argumentTypes = getTypes(argsList);
 
   var returnType = getType(returnValue);
-  var types = argumentTypes.concat(returnType);
+  var methodTypes = argumentTypes.concat(returnType);
 
-  var methodSignature = types.join(SPACE + TO_SYMBOL + SPACE);
-
-  return methodSignature;
+  return methodTypes;
 }
 
-function generateExecutionSignature(argsList, returnValue) {
-  var values = serializeValues(argsList.concat(returnValue));
+function generateExecutionValues(argsList, returnValue) {
+  var executionValues = serializeValues(R.append(returnValue, argsList));
 
-  var executionSignature = values.join(SPACE + TO_SYMBOL + SPACE);
-
-  return executionSignature;
+  return executionValues;
 }
 
 function Look () {
@@ -102,7 +122,12 @@ Look.prototype.off = function off() {
 };
 
 Look.prototype.look = function look(fn) {
+  if (!this.enabled) {
+    return fn;
+  }
+
   var fnName = getFnName(fn);
+  fns[fnName] = true;
 
   var wrapFn = function wrap(/* arguments */) {
     var returnValue = fn.apply(fn, arguments);
@@ -120,8 +145,8 @@ Look.prototype.look = function look(fn) {
         returnValue = this.look(returnValue);
       }
 
-      var methodSignature = generateMethodSignature(argsList, returnValue);
-      var executionSignature = generateExecutionSignature(argsList, returnValue);
+      var methodSignature = generateMethodTypes(argsList, returnValue);
+      var executionSignature = generateExecutionValues(argsList, returnValue);
 
       log(fnName, methodSignature, executionSignature);
     }

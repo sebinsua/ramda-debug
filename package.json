@@ -1,7 +1,7 @@
 {
   "name": "ramda-debug",
   "version": "0.0.0",
-  "description": "Debuging for Ramda.",
+  "description": "Debugging for Ramda.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -24,6 +24,9 @@
   },
   "homepage": "https://github.com/sebinsua/ramda-look#readme",
   "dependencies": {
-    "ramda": "^0.13.0"
+    "@ccheever/crayon": "^5.0.0",
+    "ramda": "^0.13.0",
+    "text-hex": "0.0.0",
+    "util-inspect": "^0.1.8"
   }
 }
