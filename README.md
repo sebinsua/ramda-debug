@@ -15,4 +15,4 @@ var entities = ;
 mapNames([ { 'type': 'fruit' } ]);
 ```
 
-![Example](http://i.imgur.com/VCUq0Va.png)
+![Example](http://i.imgur.com/lEL9Lh9.png)
