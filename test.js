@@ -5,7 +5,6 @@ var look = require('.');
 
 R = look.wrap(R)
 
-look.off();
 var getType = R.prop('type');
 var mapNames = R.map(getType);
 
@@ -18,7 +17,7 @@ var entities = [{
 }];
 mapNames(entities);
 
-look.on();
+look.off();
 
 var curry4 = R.curryN(4);
 
