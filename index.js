@@ -148,7 +148,7 @@ Look.prototype.look = function look(fnName, fn) {
 
   var isFnWrapped = !!fn.wrapped;
 
-  function getWrappedFn(displayName, fn, lookFn) {
+  function getWrappedFn(displayName, fn, lookFn, isEnabled) {
     var w = function wrap(/* arguments */) {
       var returnValue = fn.apply(fn, arguments);
 
@@ -186,14 +186,14 @@ Look.prototype.look = function look(fnName, fn) {
     return w;
   }
 
-  function rewrapFn(oldFnName, newFnName, fn, lookFn) {
+  function rewrapFn(oldFnName, newFnName, fn, lookFn, isEnabled) {
     logNameAssignment(newFnName, oldFnName);
     fn.argsList = [];
-    return getWrappedFn(newFnName, fn, lookFn);
+    return getWrappedFn(newFnName, fn, lookFn, isEnabled);
   }
 
   var lookFn = this.look.bind(this);
-  var wrapFn = isFnWrapped ? rewrapFn(fn.displayName, fnName, fn.fn, lookFn) : getWrappedFn(fnName, fn, lookFn);
+  var wrapFn = isFnWrapped ? rewrapFn(fn.displayName, fnName, fn.fn, lookFn, isEnabled) : getWrappedFn(fnName, fn, lookFn, isEnabled);
 
   return wrapFn;
 };
