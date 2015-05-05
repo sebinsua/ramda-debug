@@ -17,6 +17,22 @@ var SPACE = ' ';
 var isArray = R.is(Array);
 var isFunction = R.is(Function);
 
+function logNameAssignment(newFnName, oldFnName) {
+  var strToHex = function strToHex(str) {
+    return crayon(hex(str))(str);
+  };
+  var grey = function grey(str) {
+    return crayon('#aaa')(str);
+  };
+
+  var fnAssignmentSignature = [newFnName, oldFnName].map(function (v) {
+    return fns[v] ? strToHex(v) : grey(v);
+  }).join(SPACE + grey(EQUAL_SYMBOL) + SPACE);
+  console.log(fnAssignmentSignature);
+
+  console.log();
+}
+
 function log(fnName, methodTypes, executionValues) {
   var strToHex = function strToHex(str) {
     return crayon(hex(str))(str);
@@ -76,7 +92,7 @@ function getType(value) {
 var getTypes = R.map(getType);
 
 function serializeValue(v) {
-  if (R.is(Function, v)) {
+  if (isFunction(v)) {
     var fnName = getFnName(v);
     return fnName;
   }
@@ -118,7 +134,8 @@ Look.prototype.off = function off() {
  * Can be called with `look(fn)` or `look('functionName', fn)`.
  */
 Look.prototype.look = function look(fnName, fn) {
-  if (!this.enabled) {
+  var isEnabled = this.enabled;
+  if (!isEnabled) {
     return fn;
   }
 
@@ -127,42 +144,56 @@ Look.prototype.look = function look(fnName, fn) {
     fnName = getFnName(fn);
   }
 
-  if (fn.wrapped) {
-    fn.displayName = 'not-wrapping-again';
-    return fn;
-  }
-
   fns[fnName] = true;
 
-  var wrapFn = function wrap(/* arguments */) {
-    var returnValue = fn.apply(fn, arguments);
+  var isFnWrapped = !!fn.wrapped;
 
-    if (this.enabled) {
-      var argsList = R.values(arguments);
+  function getWrappedFn(displayName, fn, lookFn) {
+    var w = function wrap(/* arguments */) {
+      var returnValue = fn.apply(fn, arguments);
 
-      if (isFunction(returnValue)) {
-        var newFnName = fnName;
-        if (argsList.length) {
-          var oldArgsList = fn.argsList || [];
-          var fnArgsList = oldArgsList.concat(argsList);
-          newFnName = R.head(newFnName.split('(')).trim();
-          newFnName = newFnName + '(' + serializeValues(fnArgsList).join(', ') + ')';
+      if (isEnabled) {
+        var argsList = R.values(arguments);
+
+        if (isFunction(returnValue)) {
+          var newFnName = displayName;
+          if (argsList.length) {
+            var oldArgsList = fn.argsList || [];
+            var fnArgsList = oldArgsList.concat(argsList);
+            newFnName = R.head(newFnName.split('(')).trim();
+            newFnName = newFnName + '(' + serializeValues(fnArgsList).join(', ') + ')';
+          }
+          returnValue.displayName = newFnName;
+          returnValue.argsList = fnArgsList;
+          returnValue = lookFn(newFnName, returnValue);
         }
-        returnValue.displayName = newFnName;
-        returnValue.argsList = fnArgsList;
-        returnValue = this.look(returnValue);
+
+        var methodSignature = generateMethodTypes(argsList, returnValue);
+        var executionSignature = generateExecutionValues(argsList, returnValue);
+
+        log(displayName, methodSignature, executionSignature);
       }
 
-      var methodSignature = generateMethodTypes(argsList, returnValue);
-      var executionSignature = generateExecutionValues(argsList, returnValue);
+      return returnValue;
+    };
+    w.fn = fn;
+    w.displayName = fnName;
+    w.wrapped = true;
 
-      log(fnName, methodSignature, executionSignature);
-    }
+    // This is internal and is commented out for now.
+    // logNameAssignment(w.displayName, getFnName(fn));
 
-    return returnValue;
-  }.bind(this);
-  wrapFn.displayName = fnName;
-  wrapFn.wrapped = true;
+    return w;
+  }
+
+  function rewrapFn(oldFnName, newFnName, fn, lookFn) {
+    logNameAssignment(newFnName, oldFnName);
+    fn.argsList = [];
+    return getWrappedFn(newFnName, fn, lookFn);
+  }
+
+  var lookFn = this.look.bind(this);
+  var wrapFn = isFnWrapped ? rewrapFn(fn.displayName, fnName, fn.fn, lookFn) : getWrappedFn(fnName, fn, lookFn);
 
   return wrapFn;
 };
