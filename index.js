@@ -127,21 +127,17 @@ Look.prototype.look = function look(fnName, fn) {
     fnName = getFnName(fn);
   }
 
-  if (fn.wrapped) {
-    fn.displayName = 'not-wrapping-again';
-    return fn;
-  }
-
   fns[fnName] = true;
 
-  var wrapFn = function wrap(/* arguments */) {
+  var isEnabled = this.enabled, lookFn = this.look;
+  var wrapFn = fn.wrapped ? fn : function wrap(/* arguments */) {
     var returnValue = fn.apply(fn, arguments);
 
-    if (this.enabled) {
+    if (isEnabled) {
       var argsList = R.values(arguments);
 
       if (isFunction(returnValue)) {
-        var newFnName = fnName;
+        var newFnName = wrapFn.displayName;
         if (argsList.length) {
           var oldArgsList = fn.argsList || [];
           var fnArgsList = oldArgsList.concat(argsList);
@@ -150,17 +146,17 @@ Look.prototype.look = function look(fnName, fn) {
         }
         returnValue.displayName = newFnName;
         returnValue.argsList = fnArgsList;
-        returnValue = this.look(returnValue);
+        returnValue = lookFn(newFnName, returnValue);
       }
 
       var methodSignature = generateMethodTypes(argsList, returnValue);
       var executionSignature = generateExecutionValues(argsList, returnValue);
 
-      log(fnName, methodSignature, executionSignature);
+      log(wrapFn.displayName, methodSignature, executionSignature);
     }
 
     return returnValue;
-  }.bind(this);
+  };
   wrapFn.displayName = fnName;
   wrapFn.wrapped = true;
 
