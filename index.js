@@ -17,6 +17,22 @@ var SPACE = ' ';
 var isArray = R.is(Array);
 var isFunction = R.is(Function);
 
+function logNameAssignment(newFnName, oldFnName) {
+  var strToHex = function strToHex(str) {
+    return crayon(hex(str))(str);
+  };
+  var grey = function grey(str) {
+    return crayon('#aaa')(str);
+  };
+
+  var fnAssignmentSignature = [newFnName, oldFnName].map(function (v) {
+    return fns[v] ? strToHex(v) : grey(v);
+  }).join(SPACE + grey(EQUAL_SYMBOL) + SPACE);
+  console.log(fnAssignmentSignature);
+
+  console.log();
+}
+
 function log(fnName, methodTypes, executionValues) {
   var strToHex = function strToHex(str) {
     return crayon(hex(str))(str);
@@ -147,7 +163,7 @@ Look.prototype.look = function look(fnName, fn) {
             newFnName = R.head(newFnName.split('(')).trim();
             newFnName = newFnName + '(' + serializeValues(fnArgsList).join(', ') + ')';
           }
-          // returnValue.displayName = newFnName;
+          returnValue.displayName = newFnName;
           returnValue.argsList = fnArgsList;
           returnValue = lookFn(newFnName, returnValue);
         }
@@ -164,11 +180,20 @@ Look.prototype.look = function look(fnName, fn) {
     w.displayName = fnName;
     w.wrapped = true;
 
+    // This is internal and is commented out for now.
+    // logNameAssignment(w.displayName, getFnName(fn));
+
     return w;
   }
 
+  function rewrapFn(oldFnName, newFnName, fn, lookFn) {
+    logNameAssignment(newFnName, oldFnName);
+    fn.argsList = [];
+    return getWrappedFn(newFnName, fn, lookFn);
+  }
+
   var lookFn = this.look.bind(this);
-  var wrapFn = isFnWrapped ? getWrappedFn(fnName, fn.fn, lookFn) : getWrappedFn(fnName, fn, lookFn);
+  var wrapFn = isFnWrapped ? rewrapFn(fn.displayName, fnName, fn.fn, lookFn) : getWrappedFn(fnName, fn, lookFn);
 
   return wrapFn;
 };
