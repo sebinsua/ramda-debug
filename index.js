@@ -130,54 +130,45 @@ Look.prototype.look = function look(fnName, fn) {
 
   fns[fnName] = true;
 
-  var getWrappedFn = function getWrappedFn(fnName, fn, lookFn, isEnabled) {
-    var isFnWrapped = !!fn.wrapped;
+  var isFnWrapped = !!fn.wrapped;
 
-    function getWrap(displayName, fn, lookFn) {
-      var w = function wrap(/* arguments */) {
-        var returnValue = fn.apply(fn, arguments);
+  function getWrappedFn(displayName, fn, lookFn) {
+    var w = function wrap(/* arguments */) {
+      var returnValue = fn.apply(fn, arguments);
 
-        if (isEnabled) {
-          var argsList = R.values(arguments);
+      if (isEnabled) {
+        var argsList = R.values(arguments);
 
-          if (isFunction(returnValue)) {
-            var newFnName = displayName;
-            if (argsList.length) {
-              var oldArgsList = fn.argsList || [];
-              var fnArgsList = oldArgsList.concat(argsList);
-              newFnName = R.head(newFnName.split('(')).trim();
-              newFnName = newFnName + '(' + serializeValues(fnArgsList).join(', ') + ')';
-            }
-            // returnValue.displayName = newFnName;
-            returnValue.argsList = fnArgsList;
-            returnValue = lookFn(newFnName, returnValue);
+        if (isFunction(returnValue)) {
+          var newFnName = displayName;
+          if (argsList.length) {
+            var oldArgsList = fn.argsList || [];
+            var fnArgsList = oldArgsList.concat(argsList);
+            newFnName = R.head(newFnName.split('(')).trim();
+            newFnName = newFnName + '(' + serializeValues(fnArgsList).join(', ') + ')';
           }
-
-          var methodSignature = generateMethodTypes(argsList, returnValue);
-          var executionSignature = generateExecutionValues(argsList, returnValue);
-
-          log(displayName, methodSignature, executionSignature);
+          // returnValue.displayName = newFnName;
+          returnValue.argsList = fnArgsList;
+          returnValue = lookFn(newFnName, returnValue);
         }
 
-        return returnValue;
-      };
-      w.fn = fn;
+        var methodSignature = generateMethodTypes(argsList, returnValue);
+        var executionSignature = generateExecutionValues(argsList, returnValue);
 
-      return w;
-    }
+        log(displayName, methodSignature, executionSignature);
+      }
 
-    // TODO: A bound function is still accessing its previous wrapFn value in closure.
-    //       Additionally you cannot bind an already bound function.
-    //       Perhaps we should be using R.wrap?
-    var wrapFn = isFnWrapped ? getWrap(fnName, fn.fn, lookFn) : getWrap(fnName, fn, lookFn);
-    wrapFn.displayName = fnName;
-    wrapFn.wrapped = true;
+      return returnValue;
+    };
+    w.fn = fn;
+    w.displayName = fnName;
+    w.wrapped = true;
 
-    return wrapFn;
-  };
+    return w;
+  }
 
   var lookFn = this.look.bind(this);
-  var wrapFn = getWrappedFn(fnName, fn, lookFn, isEnabled);
+  var wrapFn = isFnWrapped ? getWrappedFn(fnName, fn.fn, lookFn) : getWrappedFn(fnName, fn, lookFn);
 
   return wrapFn;
 };
