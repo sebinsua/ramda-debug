@@ -34,7 +34,7 @@ outer();
 universe();
 
 // TODO: Separate logging from execution through use of emit/flush.
-// TODO: Avoid printing out multiple executions. By default print a sample: [N0 ... N-1].
+// TODO: Avoid printing out multiple executions. By default print a sample: [0, 1, 2, ... N-1, N].
 // TODO: Make the execution signature concise for large arrays/objects.
 // ----
 // TODO: Make it easy to choose which functions are logged and in what order.
