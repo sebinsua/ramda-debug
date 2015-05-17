@@ -20,7 +20,6 @@ getTypes([ { 'type': 'fruit' } ]);
 ```
 
 ![Example](http://i.imgur.com/5IVzjc3.png)
-
 The type signatures emitted are type signatures constructed from runtime usage of a function. The intention is that if a function is being used incorrectly the type signature will also be incorrect and that this can be noticed. Unfortunately it means that polymorphism will not be apparent.
 
 ## Usage
