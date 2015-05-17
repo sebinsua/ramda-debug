@@ -222,7 +222,8 @@ function wrapFns(library, enabled, lookFn) {
   }
 
   return R.mapObjIndexed(function (v, k, o) {
-    if (isFunction(v) && isEnabled) {
+    var isNotRamdaPlaceholder = v !== R.__;
+    if (isNotRamdaPlaceholder && isFunction(v) && isEnabled) {
       v = lookFn(k, v);
     }
     return v;
