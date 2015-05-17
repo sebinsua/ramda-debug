@@ -248,11 +248,19 @@ look.off = function off() {
 look.wrap = function wrap(library, enabled) {
   return wrapFns(library, enabled, look);
 };
-look.fov = function fieldOfView(fn) {
-  look.on();
-  var value = fn();
-  look.off();
-  return value;
+look.fov = function fov(fn) {
+  var wrappedFn = look(fn);
+  function fieldOfView(/* arguments */) {
+    look.on();
+    var value = wrappedFn.apply(wrappedFn, arguments);
+    look.off();
+    return value;
+  }
+  fieldOfView.fn = fn;
+  fieldOfView.displayName = wrappedFn.displayName;
+  fieldOfView.wrapped = true;
+
+  return fieldOfView;
 };
 
 module.exports = look;

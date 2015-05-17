@@ -9,13 +9,51 @@ var look = require('ramda-debug');
 
 R = look.wrap(R);
 
-var getType = R.prop('type');
-var mapNames = R.map(getType);
+var getTypes = look.fov(function getTypes(fruits) {
+  var getType = R.prop('type');
+  var mapTypes = R.map(getType);
 
-mapNames([ { 'type': 'fruit' } ]);
+  return mapTypes(fruits);
+});
+
+getTypes([ { 'type': 'fruit' } ]);
 ```
 
-![Example](http://i.imgur.com/lEL9Lh9.png)
+![Example](http://i.imgur.com/5IVzjc3.png)
+
+The type signatures emitted are type signatures constructed from runtime usage of a function. The intention is that if a function is being used incorrectly the type signature will also be incorrect and that this can be noticed. Unfortunately it means that polymorphism will not be apparent.
+
+## Usage
+
+By default debugging is *not* enabled.
+
+#### `look(fn)`
+
+A function can be passed in and a wrapped function that can emit debug information on execution will be returned.
+
+Any function can be wrapped using this.
+
+#### `wrap(library)`
+
+An object of functions may be passed in and an object or wrapped functions will be returned.
+
+Any object of functions can be wrapped using this and not just Ramda.
+
+#### `fov(fn)`
+
+This returns a function that provides a field of view within a function by proxying into `fn` and switching debugging on while it is being executed.
+
+#### `enable(enabled)`
+
+Switch debugging to this boolean value.
+
+#### `on()`
+
+Switch debugging on.
+
+#### `off()`
+
+Switch debugging off.
 
 ## Installation
 ```shell
