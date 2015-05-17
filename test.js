@@ -13,13 +13,13 @@ var entities = [{
 }];
 mapNames(entities);
 
-var curry4 = R.curryN(4);
+var result = look.fov(function () {
 
-var curriedAbc = curry4(function abc(a, b, c, d) {
-  return a + b + c + d;
-});
+  var curry4 = R.curryN(4);
 
-var someResult = look.fov(function () {
+  var curriedAbc = curry4(function abc(a, b, c, d) {
+    return a + b + c + d;
+  });
 
   var curriedFn = look('curriedAbc', curriedAbc);
 
@@ -31,7 +31,7 @@ var someResult = look.fov(function () {
   return number;
 });
 
-console.log(someResult);
+console.log(result);
 
 var inner = look('inner', function () {});
 var outer = look('outer', inner);
