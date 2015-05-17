@@ -40,7 +40,13 @@ inner();
 outer();
 universe();
 
-// TODO: Separate logging from execution through use of emit/flush.
+// TODO: Make it more obvious in the README that:
+//       - Other libraries and functions can also be wrapped.
+//       - Type signatures are the type signatures at execution and not generalised.
+// TODO: Separate logging from data collection through use of emit/flush.
+// TODO: Separate logging of calls, returns and errors.
+// TODO: Add linting in and write unit tests.
+// ----
 // TODO: Avoid printing out multiple executions. By default print a sample: [0, 1, 2, ... N-1, N].
 // TODO: Make the execution signature concise for large arrays/objects.
 // ----
