@@ -1,8 +1,12 @@
+'use strict';
+
 var R = require('ramda');
 var inspect = require('util-inspect');
 
 var hex = require('text-hex');
 var crayon = require('@ccheever/crayon');
+
+var DEFAULT_ENABLED_STATE = false;
 
 var fns = {};
 var anonymousFnCounter = 0;
@@ -14,6 +18,7 @@ var EQUAL_SYMBOL = '=';
 
 var SPACE = ' ';
 
+var isBoolean = R.is(Boolean);
 var isArray = R.is(Array);
 var isFunction = R.is(Function);
 
@@ -117,15 +122,19 @@ function generateExecutionValues(argsList, returnValue) {
 }
 
 function Look () {
-  this.enabled = true;
+  this.enabled = DEFAULT_ENABLED_STATE;
 }
 
+Look.prototype.enable = function enable(enabled) {
+  this.enabled = !!enabled;
+};
+
 Look.prototype.on = function on() {
-  this.enabled = true;
+  this.enable(true);
 };
 
 Look.prototype.off = function off() {
-  this.enabled = false;
+  this.enable(false);
 };
 
 /**
@@ -134,11 +143,6 @@ Look.prototype.off = function off() {
  * Can be called with `look(fn)` or `look('functionName', fn)`.
  */
 Look.prototype.look = function look(fnName, fn) {
-  var isEnabled = this.enabled;
-  if (!isEnabled) {
-    return fn;
-  }
-
   if (isFunction(fnName)) {
     fn = fnName;
     fnName = getFnName(fn);
@@ -148,10 +152,11 @@ Look.prototype.look = function look(fnName, fn) {
 
   var isFnWrapped = !!fn.wrapped;
 
-  function getWrappedFn(displayName, fn, lookFn, isEnabled) {
+  function getWrappedFn(displayName, fn, lookFn, lookInstance) {
     var w = function wrap(/* arguments */) {
       var returnValue = fn.apply(fn, arguments);
 
+      var isEnabled = lookInstance.enabled;
       if (isEnabled) {
         var argsList = R.values(arguments);
 
@@ -186,25 +191,38 @@ Look.prototype.look = function look(fnName, fn) {
     return w;
   }
 
-  function rewrapFn(oldFnName, newFnName, fn, lookFn, isEnabled) {
-    logNameAssignment(newFnName, oldFnName);
+  function rewrapFn(oldFnName, newFnName, fn, lookFn, lookInstance) {
+    var isEnabled = lookInstance.enabled;
+    if (isEnabled) {
+      logNameAssignment(newFnName, oldFnName);
+    }
+
     fn.argsList = [];
-    return getWrappedFn(newFnName, fn, lookFn, isEnabled);
+    return getWrappedFn(newFnName, fn, lookFn, lookInstance);
   }
 
   var lookFn = this.look.bind(this);
-  var wrapFn = isFnWrapped ? rewrapFn(fn.displayName, fnName, fn.fn, lookFn, isEnabled) : getWrappedFn(fnName, fn, lookFn, isEnabled);
+  var wrapFn = isFnWrapped ? rewrapFn(fn.displayName, fnName, fn.fn, lookFn, lookInstance) : getWrappedFn(fnName, fn, lookFn, lookInstance);
 
   return wrapFn;
 };
 
-function nameFunctions(library, lookFn) {
+function wrapFns(library, enabled, lookFn) {
   if (!library) {
     throw new Error('A library must be passed into ramda-debug#wrap.')
   }
 
+  // Enabled can be an option, or it can be a boolean.
+  // If it is undefined it will default to true.
+  var isEnabled = true;
+  if (isBoolean(enabled)) {
+    isEnabled = enabled;
+  } else if (enabled && enabled.enabled) {
+    isEnabled = enabled.enabled;
+  }
+
   return R.mapObjIndexed(function (v, k, o) {
-    if (isFunction(v)) {
+    if (isFunction(v) && isEnabled) {
       v = lookFn(k, v);
     }
     return v;
@@ -213,10 +231,28 @@ function nameFunctions(library, lookFn) {
 
 var lookInstance = new Look();
 
-var lookFn = lookInstance.look.bind(lookInstance);
-lookFn.look = lookFn;
-lookFn.on = lookInstance.on.bind(lookInstance);
-lookFn.off = lookInstance.off.bind(lookInstance);
-lookFn.wrap = R.partialRight(nameFunctions, lookFn);
+var look = lookInstance.look.bind(lookInstance);
+look.look = look;
+look.enable = function enable(enabled) {
+  lookInstance.enable(enabled);
+  return look;
+};
+look.on = function on() {
+  lookInstance.on();
+  return look;
+};
+look.off = function off() {
+  lookInstance.off();
+  return look;
+};
+look.wrap = function wrap(library, enabled) {
+  return wrapFns(library, enabled, look);
+};
+look.fov = function fieldOfView(fn) {
+  look.on();
+  var value = fn();
+  look.off();
+  return value;
+};
 
-module.exports = lookFn;
+module.exports = look;

@@ -3,7 +3,7 @@
 var R = require('ramda');
 var look = require('.');
 
-R = look.wrap(R)
+R = look.wrap(R);
 
 var getType = R.prop('type');
 var mapNames = R.map(getType);
@@ -19,12 +19,19 @@ var curriedAbc = curry4(function abc(a, b, c, d) {
   return a + b + c + d;
 });
 
-var curriedFn = look('curriedAbc', curriedAbc);
+var someResult = look.fov(function () {
 
-var fn1 = curriedFn(1);
-var fn2 = fn1(2);
-var fn3  = fn2(3);
-var number = fn3(4);
+  var curriedFn = look('curriedAbc', curriedAbc);
+
+  var fn1 = curriedFn(1);
+  var fn2 = fn1(2);
+  var fn3  = fn2(3);
+  var number = fn3(4);
+
+  return number;
+});
+
+console.log(someResult);
 
 var inner = look('inner', function () {});
 var outer = look('outer', inner);
