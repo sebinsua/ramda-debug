@@ -1,6 +1,6 @@
 {
   "name": "ramda-debug",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Debugging for Ramda.",
   "main": "index.js",
   "scripts": {
