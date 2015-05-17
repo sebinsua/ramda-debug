@@ -1,4 +1,4 @@
-# ramda-debug [![npm version](https://badge.fury.io/js/ramda-debug.svg)](https://www.npmjs.com/package/ramda-debug)
+# ramda-debug [![Build Status](https://travis-ci.org/sebinsua/ramda-debug.png)](https://travis-ci.org/sebinsua/ramda-debug) [![npm version](https://badge.fury.io/js/ramda-debug.svg)](https://www.npmjs.com/package/ramda-debug)
 > :ram: Debugging for Ramda.
 
 Aims to ease observability when coding in a [point-free programming style](http://en.wikipedia.org/wiki/Tacit_programming) hopefully making it easier to spot errors.

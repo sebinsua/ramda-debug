@@ -4,7 +4,9 @@
   "description": "Debugging for Ramda.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npm run lint && npm run unit",
+    "lint": "./node_modules/.bin/eslint .",
+    "unit": "./node_modules/.bin/mocha test/spec.*.js --require test/helpers.js"
   },
   "repository": {
     "type": "git",
@@ -35,5 +37,10 @@
     "ramda": "^0.13.0",
     "text-hex": "0.0.0",
     "util-inspect": "^0.1.8"
+  },
+  "devDependencies": {
+    "chai": "^2.3.0",
+    "eslint": "^0.21.1",
+    "mocha": "^2.2.5"
   }
 }
