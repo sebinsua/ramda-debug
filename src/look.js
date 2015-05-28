@@ -4,8 +4,10 @@
 var R = require('ramda');
 var inspect = require('util-inspect');
 
-var hex = require('text-hex');
-var crayon = require('@ccheever/crayon');
+var formatters = require('./formatters');
+
+var formatNameAssignment = formatters.formatNameAssignment;
+var formatSignature = formatters.formatSignature;
 
 var utils = require('./utils');
 
@@ -14,60 +16,23 @@ var isFunction = utils.isFunction;
 
 var DEFAULT_ENABLED_STATE = false;
 
-var fns = {};
+var LAMBDA_SYMBOL = 'λ';
+var NEW_LINE = '\n';
+
+var wrappedFnNames = {};
 var anonymousFnCounter = 0;
 
-var OF_TYPE_SYMBOL = '∷';
-var TO_SYMBOL = '→';
-var LAMBDA_SYMBOL = 'λ';
-var EQUAL_SYMBOL = '=';
-
-var SPACE = ' ';
-
+// TODO: These should not exist.
+// TODO: Logging should be able to be swapped out.
 function logNameAssignment(newFnName, oldFnName) {
-  var strToHex = function strToHex(str) {
-    return crayon(hex(str))(str);
-  };
-  var grey = function grey(str) {
-    return crayon('#aaa')(str);
-  };
-
-  var fnAssignmentSignature = [newFnName, oldFnName].map(function (v) {
-    return fns[v] ? strToHex(v) : grey(v);
-  }).join(SPACE + grey(EQUAL_SYMBOL) + SPACE);
-  console.log(fnAssignmentSignature);
-
-  console.log();
+  var fnAssignmentSignature = formatNameAssignment(newFnName, oldFnName, wrappedFnNames);
+  console.log(fnAssignmentSignature + NEW_LINE);
 }
 
 function log(fnName, methodTypes, executionValues) {
-  var strToHex = function strToHex(str) {
-    return crayon(hex(str))(str);
-  };
-  var grey = function grey(str) {
-    return crayon('#aaa')(str);
-  };
+  var signatures = formatSignature(fnName, methodTypes, executionValues, wrappedFnNames);
 
-  var methodSignature = methodTypes.join(SPACE + TO_SYMBOL + SPACE);
-  var methodSignatureLine = [
-    fns[fnName] ? strToHex(fnName) : fnName,
-    OF_TYPE_SYMBOL,
-    methodSignature
-  ].join(SPACE);
-  console.log(methodSignatureLine);
-
-  var emptyness = new Array(fnName.length + 1).join(SPACE);
-  var executionSignature = executionValues.map(function (v) {
-    return fns[v] ? strToHex(v) : grey(v);
-  }).join(SPACE + grey(TO_SYMBOL) + SPACE);
-  var executionSignatureLine = [
-    emptyness,
-    grey(EQUAL_SYMBOL),
-    executionSignature
-  ].join(SPACE);
-  console.log(executionSignatureLine);
-
-  console.log();
+  console.log(signatures.join(NEW_LINE) + NEW_LINE);
 }
 
 function getFnName(fn) {
@@ -200,7 +165,7 @@ Look.prototype.look = function look(fnName, fn) {
     fnName = getFnName(fn);
   }
 
-  fns[fnName] = true;
+  wrappedFnNames[fnName] = true;
 
   var isFnWrapped = !!fn._wrapped;
   var _lookInstance = this;
