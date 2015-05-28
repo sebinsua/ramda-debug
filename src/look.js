@@ -22,18 +22,7 @@ var NEW_LINE = '\n';
 var wrappedFnNames = {};
 var anonymousFnCounter = 0;
 
-// TODO: These should not exist.
 // TODO: Logging should be able to be swapped out.
-function logNameAssignment(newFnName, oldFnName) {
-  var fnAssignmentSignature = formatNameAssignment(newFnName, oldFnName, wrappedFnNames);
-  console.log(fnAssignmentSignature + NEW_LINE);
-}
-
-function log(fnName, methodTypes, executionValues) {
-  var signatures = formatSignature(fnName, methodTypes, executionValues, wrappedFnNames);
-
-  console.log(signatures.join(NEW_LINE) + NEW_LINE);
-}
 
 function getFnName(fn) {
   var fnName = fn.displayName || fn.name;
@@ -113,7 +102,8 @@ function getWrappedFn(displayName, fn, lookFn, lookInstance) {
       var methodSignature = generateMethodTypes(argsList, returnValue);
       var executionSignature = generateExecutionValues(argsList, returnValue);
 
-      log(displayName, methodSignature, executionSignature);
+      var signatures = formatSignature(displayName, methodSignature, executionSignature, wrappedFnNames);
+      console.log(signatures.join(NEW_LINE) + NEW_LINE);
     }
 
     return returnValue;
@@ -123,7 +113,8 @@ function getWrappedFn(displayName, fn, lookFn, lookInstance) {
   w._wrapped = true;
 
   // This is internal and is commented out for now.
-  // logNameAssignment(w.displayName, getFnName(fn));
+  // var fnAssignmentSignature = formatNameAssignment(w.displayName, getFnName(fn), wrappedFnNames);
+  // console.log(fnAssignmentSignature + NEW_LINE);
 
   return w;
 }
@@ -131,7 +122,8 @@ function getWrappedFn(displayName, fn, lookFn, lookInstance) {
 function rewrapFn(oldFnName, newFnName, fn, lookFn, lookInstance) {
   var isEnabled = lookInstance.enabled;
   if (isEnabled) {
-    logNameAssignment(newFnName, oldFnName);
+    var fnAssignmentSignature = formatNameAssignment(newFnName, oldFnName, wrappedFnNames);
+    console.log(fnAssignmentSignature + NEW_LINE);
   }
 
   fn._argsList = [];
