@@ -23,6 +23,7 @@ var wrappedFnNames = {};
 var anonymousFnCounter = 0;
 
 // TODO: Logging should be able to be swapped out.
+//       Use lookInstance.getLogger.
 
 function getFnName(fn) {
   var fnName = fn.displayName || fn.name;
