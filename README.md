@@ -3,6 +3,8 @@
 
 Aims to ease observability when coding in a [point-free programming style](http://en.wikipedia.org/wiki/Tacit_programming) hopefully making it easier to spot errors.
 
+See also [tap-debug](https://github.com/sebinsua/tap-debug) for a more human-readable debug function. 
+
 ```javascript
 var R = require('ramda');
 var look = require('ramda-debug');
