@@ -38,4 +38,7 @@ look.fov = function fov(fn) {
   return fieldOfView;
 };
 
-module.exports = look;
+module.exports = function init(debugFn) {
+  lookInstance.setLogger(debugFn);
+  return look;
+};

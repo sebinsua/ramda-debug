@@ -14,6 +14,11 @@ var utils = require('./utils');
 var isArray = utils.isArray;
 var isFunction = utils.isFunction;
 
+var DEFAULT_LOG = function defaultLog(/* arguments */) {
+  console.log.apply(console, arguments);
+};
+DEFAULT_LOG.enabled = true;
+
 var DEFAULT_ENABLED_STATE = false;
 
 var LAMBDA_SYMBOL = 'λ';
@@ -104,7 +109,7 @@ function getWrappedFn(displayName, fn, lookFn, lookInstance) {
       var executionSignature = generateExecutionValues(argsList, returnValue);
 
       var signatures = formatSignature(displayName, methodSignature, executionSignature, wrappedFnNames);
-      console.log(signatures.join(NEW_LINE) + NEW_LINE);
+      lookInstance.log(signatures);
     }
 
     return returnValue;
@@ -115,7 +120,7 @@ function getWrappedFn(displayName, fn, lookFn, lookInstance) {
 
   // This is internal and is commented out for now.
   // var fnAssignmentSignature = formatNameAssignment(w.displayName, getFnName(fn), wrappedFnNames);
-  // console.log(fnAssignmentSignature + NEW_LINE);
+  // lookInstance.log(fnAssignmentSignature + NEW_LINE);
 
   return w;
 }
@@ -124,7 +129,7 @@ function rewrapFn(oldFnName, newFnName, fn, lookFn, lookInstance) {
   var isEnabled = lookInstance.enabled;
   if (isEnabled) {
     var fnAssignmentSignature = formatNameAssignment(newFnName, oldFnName, wrappedFnNames);
-    console.log(fnAssignmentSignature + NEW_LINE);
+    lookInstance.log(fnAssignmentSignature + NEW_LINE);
   }
 
   fn._argsList = [];
@@ -133,7 +138,23 @@ function rewrapFn(oldFnName, newFnName, fn, lookFn, lookInstance) {
 
 function Look () {
   this.enabled = DEFAULT_ENABLED_STATE;
+
+  this.logger = DEFAULT_LOG;
 }
+
+Look.prototype.setLogger = function (debugFn) {
+  this.defaultLogger = DEFAULT_LOG;
+  this.logger = debugFn || DEFAULT_LOG;
+};
+
+Look.prototype.log = function (/* */) {
+  var self = this;
+  var messages = isArray(arguments[0]) ? arguments[0] : [arguments[0]];
+  messages.forEach(function (m) {
+    self.logger.apply(self, [m]);
+  });
+  self.defaultLogger.apply(self);
+};
 
 Look.prototype.enable = function enable(enabled) {
   this.enabled = !!enabled;

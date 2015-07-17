@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 'use strict';
 
+var debug = require('debug')('a:namespace');
+
 var R = require('ramda');
-var look = require('..');
+var look = require('..')(debug);
 
 R = look.wrap(R);
 
