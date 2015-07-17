@@ -22,7 +22,6 @@ DEFAULT_LOG.enabled = true;
 var DEFAULT_ENABLED_STATE = false;
 
 var LAMBDA_SYMBOL = 'λ';
-var NEW_LINE = '\n';
 
 var wrappedFnNames = {};
 var anonymousFnCounter = 0;
