@@ -129,7 +129,7 @@ function rewrapFn(oldFnName, newFnName, fn, lookFn, lookInstance) {
   var isEnabled = lookInstance.enabled;
   if (isEnabled) {
     var fnAssignmentSignature = formatNameAssignment(newFnName, oldFnName, wrappedFnNames);
-    lookInstance.log(fnAssignmentSignature + NEW_LINE);
+    lookInstance.log(fnAssignmentSignature);
   }
 
   fn._argsList = [];
