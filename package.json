@@ -34,13 +34,13 @@
   "homepage": "https://github.com/sebinsua/ramda-look#readme",
   "dependencies": {
     "@ccheever/crayon": "^5.0.0",
-    "ramda": "^0.13.0",
+    "ramda": "^0.21.0",
     "text-hex": "0.0.0",
     "util-inspect": "^0.1.8"
   },
   "devDependencies": {
-    "chai": "^2.3.0",
-    "eslint": "^0.21.1",
+    "chai": "^3.5.0",
+    "eslint": "^2.10.2",
     "mocha": "^2.2.5"
   }
 }

@@ -85,7 +85,7 @@ function getType(value) {
   if (isArray(value)) {
     var types = getTypes(value);
     var firstType = R.head(types);
-    var isAnyTypeDifferent = R.any(R.pipe(R.eq(firstType), R.not));
+    var isAnyTypeDifferent = R.any(R.pipe(R.equals(firstType), R.not));
     if (isAnyTypeDifferent(types)) {
       type = '[Mixed]';
     } else {
